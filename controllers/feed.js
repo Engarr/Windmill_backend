@@ -185,23 +185,23 @@ export const getProductDetails = async (req, res, next) => {
   }
 };
 
-// export const getLocalStorageProducts = async (req, res, next) => {
-//   const ids = req.query.ids;
-//   if (ids) {
-//     const idArr = ids.split(',');
-//     try {
-//       const products = await Product.find({ _id: { $in: idArr } });
-//       res.status(200).json({ products: products });
-//     } catch (err) {
-//       if (!err) {
-//         err.statusCode = 500;
-//       }
-//       next(err);
-//     }
-//   } else {
-//     res.status(200).json({ products: [] });
-//   }
-// };
+export const getLocalStorageProducts = async (req, res, next) => {
+  const ids = req.query.ids;
+  if (ids) {
+    const idArr = ids.split(',');
+    try {
+      const products = await Product.find({ _id: { $in: idArr } });
+      res.status(200).json({ products: products });
+    } catch (err) {
+      if (!err) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  } else {
+    res.status(200).json({ products: [] });
+  }
+};
 
 export const deleteProduct = async (req, res, next) => {
   const userId = req.userId;

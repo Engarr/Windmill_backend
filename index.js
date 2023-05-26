@@ -44,10 +44,6 @@ app.use((req, res, next) => {
 app.use('/auth', authRouter);
 app.use('/feed', feedRouter);
 app.use('/cartFeed', cartFeedRouter);
-app.use('/test', (req, res, next) => {
-  // console.log('hello');
-  res.status(200).json('hello');
-});
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -55,9 +51,6 @@ app.use((error, req, res, next) => {
   const message = error.message;
   const data = error.data;
   res.status(status).json({ message: message, data: data });
-});
-app.get('/test', (req, res, next) => {
-  res.send({ title: 'tekst' });
 });
 
 connectDB().then(() => {
