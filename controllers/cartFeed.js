@@ -82,3 +82,31 @@ export const removeProduct = async (req, res, next) => {
     next(err);
   }
 };
+export const increaseQty = async (req, res, next) => {
+  const userId = req.userId;
+
+  const productId = req.params.id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error('Could not find user.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const product = user.cart.find((item) => item.productId === productId);
+    if (!product) {
+      const error = new Error('Could not find product.');
+      error.statusCode = 404;
+      throw error;
+    }
+    product.quantity += 1;
+    await user.save();
+  } catch (err) {
+    if (!err) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

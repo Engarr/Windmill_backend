@@ -4,6 +4,7 @@ export const imageValidator = (value, { req }) => {
   if (req.body.imageUrl) {
     return true;
   } else {
+    console.log(req.file);
     if (!req.file) {
       throw new Error('Nie wybrano pliku zdjęciowego.');
     }

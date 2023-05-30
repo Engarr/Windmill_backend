@@ -18,6 +18,7 @@ export const getUser = async (req, res, next) => {
 
 export const postAddProduct = async (req, res, next) => {
   const error = validationResult(req);
+
   if (!error.isEmpty()) {
     return res.status(422).json({ errors: error.array() });
   }
@@ -85,15 +86,17 @@ export const editProduct = async (req, res, next) => {
   const description = req.body.description;
   const creatorId = req.body.creatorId;
   const image = req.file;
-  console.log(name);
   let imageUrl = req.body.imageUrl;
   try {
     if (image) {
       const metadata = {
         contentType: req.file.mimetype,
       };
-      const desertRef = ref(storage, imageUrl);
-      await deleteObject(desertRef);
+
+      if (imageUrl) {
+        const desertRef = ref(storage, imageUrl);
+        await deleteObject(desertRef);
+      }
       const newStorageRef = ref(
         storage,
         `images/${uuidv4() + image.originalname}`
