@@ -103,6 +103,7 @@ export const increaseQty = async (req, res, next) => {
     }
     product.quantity += 1;
     await user.save();
+    res.status(200).json();
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
@@ -135,6 +136,7 @@ export const decreaseQty = async (req, res, next) => {
       product.quantity--;
     }
     await user.save();
+    res.status(200).json();
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
