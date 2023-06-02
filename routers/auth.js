@@ -1,8 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import { signup, login } from '../controllers/auth.js';
+import { signup, login, changePassword } from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
+import isAuth from '../middleware/is-auth.js';
 
 router.put(
   '/signup',
@@ -27,8 +28,6 @@ router.put(
       .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])/),
     body('repeatPassword').custom((value, { req }) => {
       if (value !== req.body.password) {
-        console.log(value);
-        console.log(req.body.repeatPassword);
         return Promise.reject('Hasła muszą być identyczne');
       }
       return true;
@@ -44,6 +43,25 @@ router.post(
     body('password', 'To pole nie może być puste').trim().not().isEmpty(),
   ],
   login
+);
+router.put(
+  '/change-password',
+  // [
+  //   body(
+  //     'password',
+  //     'Hasło musi zawierać co najmniej jedną wielką literę i jeden znak specjalny oraz byc dłuższe niz 5 znaków'
+  //   )
+  //     .isLength({ min: 5 })
+  //     .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])/),
+  //   body('repeatPassword').custom((value, { req }) => {
+  //     if (value !== req.body.password) {
+  //       return Promise.reject('Hasła muszą być identyczne');
+  //     }
+  //     return true;
+  //   }),
+  // ],
+  isAuth,
+  changePassword
 );
 
 export default router;
