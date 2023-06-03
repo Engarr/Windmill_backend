@@ -46,20 +46,20 @@ router.post(
 );
 router.put(
   '/change-password',
-  // [
-  //   body(
-  //     'password',
-  //     'Hasło musi zawierać co najmniej jedną wielką literę i jeden znak specjalny oraz byc dłuższe niz 5 znaków'
-  //   )
-  //     .isLength({ min: 5 })
-  //     .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])/),
-  //   body('repeatPassword').custom((value, { req }) => {
-  //     if (value !== req.body.password) {
-  //       return Promise.reject('Hasła muszą być identyczne');
-  //     }
-  //     return true;
-  //   }),
-  // ],
+  [
+    body(
+      'newPassword',
+      'Hasło musi zawierać co najmniej jedną wielką literę i jeden znak specjalny oraz byc dłuższe niz 5 znaków'
+    )
+      .isLength({ min: 5 })
+      .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])/),
+    body('repeatNewPassword').custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        return Promise.reject('Hasła muszą być identyczne');
+      }
+      return true;
+    }),
+  ],
   isAuth,
   changePassword
 );

@@ -94,7 +94,7 @@ export const changePassword = async (req, res, next) => {
 
     const isEqual = await bcrypt.compare(oldPassword, user.password);
     if (!isEqual) {
-      const error = new Error('Wrong password!');
+      const error = new Error('Podane hasło nie jest poprawne.');
       error.statusCode = 401;
       throw error;
     }
