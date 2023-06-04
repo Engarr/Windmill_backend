@@ -113,3 +113,40 @@ export const changePassword = async (req, res, next) => {
     next(err);
   }
 };
+export const changeEmail = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({ errors: error.array() });
+  }
+
+  const userId = req.userId;
+  const password = req.body.password;
+  const newEmail = req.body.newEmail;
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      const error = new Error(
+        'Użytkownik z podanym adresem e mail nie istnieje'
+      );
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      const error = new Error('Podane hasło nie jest poprawne.');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    user.email = newEmail;
+    await user.save();
+    res.status(200).json({ message: 'Email zostało zmeiniony.' });
+  } catch (err) {
+    if (!err) {
+      err.statusCode(500);
+    }
+    next(err);
+  }
+};

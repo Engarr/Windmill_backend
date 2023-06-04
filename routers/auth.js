@@ -1,6 +1,11 @@
 import express from 'express';
 const router = express.Router();
-import { signup, login, changePassword } from '../controllers/auth.js';
+import {
+  signup,
+  login,
+  changePassword,
+  changeEmail,
+} from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
 import isAuth from '../middleware/is-auth.js';
@@ -66,6 +71,17 @@ router.put(
   ],
   isAuth,
   changePassword
+);
+router.put(
+  '/change-email',
+  [
+    body('password', 'Pole z hasłem nie może być puste').trim().not().isEmpty(),
+    body('newEmail')
+      .isEmail()
+      .withMessage('Proszę podać poprawny adres e-mail.'),
+  ],
+  isAuth,
+  changeEmail
 );
 
 export default router;
