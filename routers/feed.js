@@ -11,6 +11,7 @@ import {
   editProduct,
   deleteProduct,
   getLocalStorageProducts,
+  getUserProducts
 } from '../controllers/feed.js';
 import { body } from 'express-validator';
 import { imageValidator } from '../validation/validation.js';
@@ -44,6 +45,7 @@ router.post(
 );
 router.get('/products', getProducts);
 router.get('/products/:category', getCategoryProducts);
+router.get('/user-products',isAuth, getUserProducts)
 router.get('/product/:productId', getProductDetails);
 router.get('/storage', getLocalStorageProducts);
 router.put(

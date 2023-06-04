@@ -150,6 +150,30 @@ export const getProducts = async (req, res, next) => {
     next(err);
   }
 };
+export const getUserProducts = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      if (!user) {
+        const error = new Error('Nie udało się odnaleźć użytkownika');
+        error.statusCode = 422;
+        throw error;
+      }
+    }
+    const userProducts = user.products;
+    const productsData = await Product.find({ _id: { $in: userProducts } });
+
+    res.status(200).json({
+      products: productsData,
+    });
+  } catch (err) {
+    if (!err) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 
 export const getCategoryProducts = async (req, res, next) => {
   const category = req.params.category;
