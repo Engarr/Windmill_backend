@@ -19,11 +19,11 @@ export const signup = async (req, res, next) => {
       password: hashedPassword,
     });
     const result = await user.save();
-    res.status(201).json({ message: 'User has been created' });
+    res.status(201).json({ message: 'Użytkownik został utworzony' });
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
-      err.message = 'something went wrong';
+      err.message = 'Coś poszło nie tak...';
     }
     next(err);
   }
@@ -41,14 +41,16 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      const error = new Error('Could not find user with that email');
+      const error = new Error(
+        'Nie można znaleźć użytkownika o tym adresie e-mail'
+      );
       error.statusCode = 401;
       throw error;
     }
     loadedUser = user;
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      const error = new Error('Wrong password!');
+      const error = new Error('Hasło jest nie poprawne!');
       error.statusCode = 401;
       throw error;
     }
@@ -87,7 +89,9 @@ export const changePassword = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      const error = new Error('Could not find user with that email');
+      const error = new Error(
+        'Użytkownik z podanym adresem e mail nie istnieje'
+      );
       error.statusCode = 401;
       throw error;
     }

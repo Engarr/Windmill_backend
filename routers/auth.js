@@ -47,6 +47,10 @@ router.post(
 router.put(
   '/change-password',
   [
+    body('oldPassword', 'Pole stare hasło nie może byc puste')
+      .trim()
+      .not()
+      .isEmpty(),
     body(
       'newPassword',
       'Hasło musi zawierać co najmniej jedną wielką literę i jeden znak specjalny oraz byc dłuższe niz 5 znaków'
