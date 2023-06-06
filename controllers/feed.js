@@ -211,7 +211,22 @@ export const getProductDetails = async (req, res, next) => {
     next(err);
   }
 };
+export const getSearchProducts = async (req, res, next) => {
+  const searchValue = req.params.value;
+  const regexPattern = `^${searchValue}`;
 
+  try {
+    const products = await Product.find({
+      name: { $regex: regexPattern, $options: 'i' },
+    });
+    res.status(200).json(products);
+  } catch (err) {
+    if (!err) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
 export const getLocalStorageProducts = async (req, res, next) => {
   const ids = req.query.ids;
   if (ids) {
