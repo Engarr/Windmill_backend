@@ -87,13 +87,12 @@ router.put(
 router.put(
   '/contact',
   [
+    body('subject', 'Proszę podać tytuł wiaodmości').trim().not().isEmpty(),
     body('userName', 'Pole z imieniem nie może być puste')
       .trim()
       .not()
       .isEmpty(),
-    body('email')
-      .isEmail()
-      .withMessage('Proszę podać poprawny adres e-mail.'),
+    body('email').isEmail().withMessage('Proszę podać poprawny adres e-mail.'),
     body('message', 'Pole z wiaodmścią nie może być puste')
       .trim()
       .not()
