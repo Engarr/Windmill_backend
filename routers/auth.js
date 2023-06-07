@@ -5,6 +5,7 @@ import {
   login,
   changePassword,
   changeEmail,
+  getMessage,
 } from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
@@ -82,6 +83,23 @@ router.put(
   ],
   isAuth,
   changeEmail
+);
+router.put(
+  '/contact',
+  [
+    body('userName', 'Pole z imieniem nie może być puste')
+      .trim()
+      .not()
+      .isEmpty(),
+    body('email')
+      .isEmail()
+      .withMessage('Proszę podać poprawny adres e-mail.'),
+    body('message', 'Pole z wiaodmścią nie może być puste')
+      .trim()
+      .not()
+      .isEmpty(),
+  ],
+  getMessage
 );
 
 export default router;

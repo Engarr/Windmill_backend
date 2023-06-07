@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/user.js';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer';
 
 export const signup = async (req, res, next) => {
   const error = validationResult(req);
@@ -148,5 +149,48 @@ export const changeEmail = async (req, res, next) => {
       err.statusCode(500);
     }
     next(err);
+  }
+};
+export const getMessage = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({ errors: error.array() });
+  }
+  const userName = req.body.userName;
+  const userEmail = req.body.email;
+  const message = req.body.message;
+  const subject = req.body.subject;
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD_EMAIL,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+  const mailToMeOptions = {
+    from: userEmail,
+    to: process.env.EMAIL,
+    subject: subject,
+    text: `Wiadomość od ${userName}!\n\n${message}\n\n${userEmail}`,
+  };
+
+  const mailToUserOptions = {
+    from: process.env.EMAIL,
+    to: userEmail,
+    subject: subject,
+    text: `Dziękujemy otrzymaliśmy Twoją wiadomość. Odpowiemy na pytanie jak najszybciej będzie to możliwe.`,
+  };
+  try {
+    await transporter.sendMail(mailToMeOptions);
+    await transporter.sendMail(mailToUserOptions);
+    res.status(200).json({ message: 'Widomość została wysłana poprawnie.' });
+  } catch (err) {
+    console.error('Błąd podczas wysyłania wiadomości e-mail:', err);
+    return res
+      .status(500)
+      .json({ error: 'Wystąpił błąd podczas wysyłania wiadomości e-mail.' });
   }
 };
