@@ -51,7 +51,7 @@ export const login = async (req, res, next) => {
     loadedUser = user;
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      const error = new Error('Hasło jest nie poprawne!');
+      const error = new Error('Hasło jest niepoprawne!');
       error.statusCode = 401;
       throw error;
     }
