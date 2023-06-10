@@ -205,9 +205,9 @@ export const putCreateResetCode = async (req, res, next) => {
   }
   const userEmail = req.body.email;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: userEmail });
     if (!user) {
-      return res.status(404).json({ error: 'Użytkownik nie istnieje' });
+      return res.status(404).json({ message: 'Użytkownik nie istnieje' });
     }
     const resetCode = generateResetCode();
     await TokenModel.create({ user: user._id, token: resetCode });
