@@ -3,6 +3,9 @@ import User from '../models/user.js';
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import TokenModel from '../models/tokenModel.js';
+import { generateResetCode } from '../middleware/generateResetCode.js';
+import { sendResetPasswordEmail } from '../middleware/sendResetPasswordEmail.js';
 
 export const signup = async (req, res, next) => {
   const error = validationResult(req);
@@ -37,6 +40,7 @@ export const login = async (req, res, next) => {
   }
   const email = req.body.email;
   const password = req.body.password;
+
   let loadedUser;
   try {
     const user = await User.findOne({ email: email });
@@ -192,5 +196,87 @@ export const getMessage = async (req, res, next) => {
     return res
       .status(500)
       .json({ error: 'Wystąpił błąd podczas wysyłania wiadomości e-mail.' });
+  }
+};
+export const putCreateResetCode = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    res.status(422).json({ errors: error.array() });
+  }
+  const email = req.body.email;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie istnieje' });
+    }
+    const resetCode = generateResetCode();
+    await TokenModel.create({ user: user._id, token: resetCode });
+    sendResetPasswordEmail(email, resetCode);
+    return res.status(200).json({
+      message:
+        'Wiadomość z kodem resetowania hasła została wysłana na adres email',
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Wystąpił błąd serwera' });
+    if (!err) {
+      err.statusCode(500);
+    }
+    next(err);
+  }
+};
+export const putVerifyCode = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    res.status(422).json({ errors: error.array() });
+  }
+  const token = req.body.code;
+
+  try {
+    const tokenDoc = await TokenModel.findOne({ token });
+    if (!tokenDoc) {
+      res.status(400).json({
+        errors: { error: { code: 'Nieprawidłowy kod resetowania hasła' } },
+      });
+    }
+
+    const user = await User.findById(tokenDoc.user);
+    if (!user) {
+      res.status(404).json({
+        errors: { error: { code: 'Użytkownik nie istnieje' } },
+      });
+    }
+
+    res.status(200).json({ userId: user._id });
+  } catch (err) {
+    if (!err) {
+      err.statusCode(500);
+    }
+    next(err);
+  }
+};
+export const putNewPassword = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    res.status(422).json({ errors: error.array() });
+  }
+  const userId = req.body.userId;
+  const newPassword = req.body.newPassword;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error('Użytkownik nie istnieje');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, 12);
+    user.password = newHashedPassword;
+    await user.save();
+    res.status(200).json({ message: 'Hasło zostało zmeinione.' });
+  } catch (err) {
+    if (!err) {
+      err.statusCode(500);
+    }
+    next(err);
   }
 };

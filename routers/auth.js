@@ -6,6 +6,9 @@ import {
   changePassword,
   changeEmail,
   getMessage,
+  putCreateResetCode,
+  putVerifyCode,
+  putNewPassword,
 } from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
@@ -100,5 +103,32 @@ router.put(
   ],
   getMessage
 );
-
+router.put(
+  '/reset-send',
+  [body('email').isEmail().withMessage('Proszę podać poprawny adres e-mail.')],
+  putCreateResetCode
+);
+router.put(
+  '/send-code',
+  [body('code', 'Pole z kodem nie może być puste').trim().not().isEmpty()],
+  putVerifyCode
+);
+router.put(
+  '/send-new-password',
+  [
+    body(
+      'newPassword',
+      'Hasło musi zawierać co najmniej jedną wielką literę i jeden znak specjalny oraz byc dłuższe niz 5 znaków'
+    )
+      .isLength({ min: 5 })
+      .matches(/^(?=.*[A-Z])(?=.*[!@#$&*])/),
+    body('repeatPassword').custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        return Promise.reject('Hasła muszą być identyczne');
+      }
+      return true;
+    }),
+  ],
+  putNewPassword
+);
 export default router;
