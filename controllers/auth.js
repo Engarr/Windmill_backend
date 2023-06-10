@@ -211,7 +211,28 @@ export const putCreateResetCode = async (req, res, next) => {
     }
     const resetCode = generateResetCode();
     await TokenModel.create({ user: user._id, token: resetCode });
-    sendResetPasswordEmail(userEmail, resetCode);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD_EMAIL,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: userEmail,
+      subject: 'Resetowanie hasła',
+      text: `Twój kod resetowania hasła: ${resetCode}`,
+      html: `<p>Twój kod resetowania hasła: <strong>${resetCode}</strong></p>`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
     return res.status(200).json({
       message:
         'Wiadomość z kodem resetowania hasła została wysłana na adres email',
