@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-export const sendResetPasswordEmail = async (email, resetCode) => {
+export const sendResetPasswordEmail = async (userEmail, resetCode) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -13,8 +13,8 @@ export const sendResetPasswordEmail = async (email, resetCode) => {
   });
 
   const mailOptions = {
-    from: process.env.PASSWORD_EMAIL,
-    to: email,
+    from: process.env.EMAIL,
+    to: userEmail,
     subject: 'Resetowanie hasła',
     text: `Twój kod resetowania hasła: ${resetCode}`,
     html: `<p>Twój kod resetowania hasła: <strong>${resetCode}</strong></p>`,

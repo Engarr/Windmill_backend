@@ -203,7 +203,7 @@ export const putCreateResetCode = async (req, res, next) => {
   if (!error.isEmpty()) {
     res.status(422).json({ errors: error.array() });
   }
-  const email = req.body.email;
+  const userEmail = req.body.email;
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -211,7 +211,7 @@ export const putCreateResetCode = async (req, res, next) => {
     }
     const resetCode = generateResetCode();
     await TokenModel.create({ user: user._id, token: resetCode });
-    sendResetPasswordEmail(email, resetCode);
+    sendResetPasswordEmail(userEmail, resetCode);
     return res.status(200).json({
       message:
         'Wiadomość z kodem resetowania hasła została wysłana na adres email',
