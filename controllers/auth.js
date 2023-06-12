@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import TokenModel from '../models/tokenModel.js';
 import { generateResetCode } from '../middleware/generateResetCode.js';
-import { sendResetPasswordEmail } from '../middleware/sendResetPasswordEmail.js';
 
 export const signup = async (req, res, next) => {
   const error = validationResult(req);

@@ -1,5 +1,8 @@
 import Product from '../models/product.js';
 import User from '../models/user.js';
+import OrderSchema from '../models/orderModel.js';
+import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator';
 
 export const addToCart = async (req, res, next) => {
   const userId = req.body.userId;
@@ -137,6 +140,77 @@ export const decreaseQty = async (req, res, next) => {
     }
     await user.save();
     res.status(200).json();
+  } catch (err) {
+    if (!err) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+export const postOrder = async (req, res, next) => {
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    return res.status(422).json({ errors: error.array() });
+  }
+  const productsArr = req.body.productsArr;
+  const orderData = req.body.orderData;
+  const paymentMethod = req.body.paymentMethod;
+  const deliveryMehtod = req.body.deliveryMehtod;
+  const token = req.body.token;
+
+  try {
+    const {
+      name,
+      surname,
+      companyName,
+      street,
+      zipCode,
+      city,
+      phone,
+      message,
+      email,
+    } = orderData;
+    const mappedProducts = productsArr.map((product) => ({
+      _id: product._id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      imageUrl: product.imgUrl,
+      quantity: product.quantity,
+    }));
+    let userId;
+
+    if (token) {
+      const decodedToken = jwt.decode(token, process.env.VITE_SECRET_TOKEN);
+      userId = await decodedToken.userId;
+    }
+
+    const newOrder = new OrderSchema({
+      user: { email, userId },
+      name,
+      surname,
+      companyName,
+      street,
+      zipCode,
+      city,
+      phone,
+      message,
+      email,
+      products: mappedProducts,
+      paymentMethod,
+      deliveryMethod: {
+        name: deliveryMehtod.name,
+        price: deliveryMehtod.price,
+      },
+      date: new Date(),
+      paid: false,
+    });
+    await newOrder.save();
+
+    res.status(201).json({
+      message: 'Zamówienie zostało złożone pomyślnie.',
+      orderId: newOrder._id,
+    });
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
