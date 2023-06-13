@@ -24,6 +24,7 @@ export const addToCart = async (req, res, next) => {
     }
 
     await user.save();
+    res.status(200).json();
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
@@ -169,6 +170,7 @@ export const postOrder = async (req, res, next) => {
       message,
       email,
     } = req.body;
+
     const mappedProducts = productsArr.map((product) => ({
       _id: product._id,
       name: product.name,
@@ -206,7 +208,7 @@ export const postOrder = async (req, res, next) => {
     });
     await newOrder.save();
 
-    res.status(201).json({ message: 'Zamówienie zostało zapisane' });
+    res.status(201).json({ orderId: newOrder._id });
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
