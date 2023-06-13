@@ -11,6 +11,7 @@ import {
   increaseQty,
   decreaseQty,
   postOrder,
+  deleteCart,
 } from '../controllers/cartFeed.js';
 
 router.put('/addToCart', addToCart);
@@ -21,25 +22,27 @@ router.delete('/deleteProduct', isAuth, removeProduct);
 router.post(
   '/send-order',
   [
-    body('name').notEmpty().trim().withMessage('Wprowadź dane'),
-    body('surename').notEmpty().trim().withMessage('Wprowadź dane'),
-    body('city').notEmpty().trim().withMessage('Wprowadź dane'),
-    body('street').notEmpty().trim().withMessage('Wprowadź dane'),
+    body('name').trim().not().isEmpty().withMessage('Wprowadź dane'),
+    body('surname').trim().not().isEmpty().withMessage('Wprowadź dane'),
+    body('city').trim().not().isEmpty().withMessage('Wprowadź dane'),
+    body('street').trim().not().isEmpty().withMessage('Wprowadź dane'),
     body('zipCode')
-      .notEmpty()
       .trim()
+      .not()
+      .isEmpty()
       .withMessage('Wprowadź dane')
-      .matches(/^\d{2}-\d{3}$/)
-      .withMessage('Poprawny format to XX-XXX'),
+      .matches(/^\d{2}\d{3}$/)
+      .withMessage('Poprawny format: XXXXX'),
     body('phone')
-      .notEmpty()
       .trim()
+      .not()
+      .isEmpty()
       .withMessage('Wprowadź dane')
       .matches(/^\+?\d{0,3}?\d{9}$/)
       .withMessage('Nieprawidłowy numer telefonu'),
     body('email')
       .isEmail()
-      .withMessage(' Proszę podać poprawny adres e-mail.')
+      .withMessage(' Podaj poprawny adres e-mail.')
       .normalizeEmail()
       .trim(),
     body('status')
@@ -48,4 +51,5 @@ router.post(
   ],
   postOrder
 );
+router.delete('/clearCart', isAuth, deleteCart);
 export default router;

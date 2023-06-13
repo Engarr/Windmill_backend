@@ -12,7 +12,7 @@ export const addToCart = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      const error = new Error('Could not find user.');
+      const error = new Error('Nie udało się odnaleźć użytkownika.');
       error.statusCode = 404;
       throw error;
     }
@@ -37,7 +37,7 @@ export const getCartProducts = async (req, res, next) => {
     try {
       const user = await User.findById(userId);
       if (!user) {
-        const error = new Error('Could not find user.');
+        const error = new Error('Nie udało się odnaleźć użytkownika.');
         error.statusCode = 404;
         throw error;
       }
@@ -65,13 +65,13 @@ export const removeProduct = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      const error = new Error('Could not find user.');
+      const error = new Error('Nie udało się odnaleźć użytkownika.');
       error.statusCode = 404;
       throw error;
     }
     const product = user.cart.find((item) => item.productId === productId);
     if (!product) {
-      const error = new Error('Could not find product.');
+      const error = new Error('Nie udało się odnaleźć produktu.');
       error.statusCode = 404;
       throw error;
     }
@@ -93,14 +93,14 @@ export const increaseQty = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      const error = new Error('Could not find user.');
+      const error = new Error('Nie udało się odnaleźć użytkownika.');
       error.statusCode = 404;
       throw error;
     }
 
     const product = user.cart.find((item) => item.productId === productId);
     if (!product) {
-      const error = new Error('Could not find product.');
+      const error = new Error('Nie udało się odnaleźć produktu.');
       error.statusCode = 404;
       throw error;
     }
@@ -121,14 +121,14 @@ export const decreaseQty = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      const error = new Error('Could not find user.');
+      const error = new Error('Nie udało się odnaleźć użytkownika.');
       error.statusCode = 404;
       throw error;
     }
 
     const product = user.cart.find((item) => item.productId === productId);
     if (!product) {
-      const error = new Error('Could not find product.');
+      const error = new Error('Nie udało się odnaleźć produktu.');
       error.statusCode = 404;
       throw error;
     }
@@ -153,9 +153,8 @@ export const postOrder = async (req, res, next) => {
     return res.status(422).json({ errors: error.array() });
   }
   const productsArr = req.body.productsArr;
-  const orderData = req.body.orderData;
   const paymentMethod = req.body.paymentMethod;
-  const deliveryMehtod = req.body.deliveryMehtod;
+  const deliveryMethod = req.body.deliveryMethod;
   const token = req.body.token;
 
   try {
@@ -169,7 +168,7 @@ export const postOrder = async (req, res, next) => {
       phone,
       message,
       email,
-    } = orderData;
+    } = req.body;
     const mappedProducts = productsArr.map((product) => ({
       _id: product._id,
       name: product.name,
@@ -199,18 +198,34 @@ export const postOrder = async (req, res, next) => {
       products: mappedProducts,
       paymentMethod,
       deliveryMethod: {
-        name: deliveryMehtod.name,
-        price: deliveryMehtod.price,
+        name: deliveryMethod.name,
+        price: deliveryMethod.price,
       },
       date: new Date(),
       paid: false,
     });
     await newOrder.save();
 
-    res.status(201).json({
-      message: 'Zamówienie zostało złożone pomyślnie.',
-      orderId: newOrder._id,
-    });
+    res.status(201).json({ message: 'Zamówienie zostało zapisane' });
+  } catch (err) {
+    if (!err) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+export const deleteCart = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      const error = new Error('Nie udało się odnaleźć użytkownika.');
+      error.statusCode = 404;
+      throw error;
+    }
+    user.cart = [];
+    await user.save();
+    res.status(200).json();
   } catch (err) {
     if (!err) {
       err.statusCode = 500;
