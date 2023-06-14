@@ -14,6 +14,7 @@ const Product = {
   qty: Number,
   price: Number,
   imageUrl: String,
+  quantity: Number,
 };
 const DeliveryMethod = {
   price: String,

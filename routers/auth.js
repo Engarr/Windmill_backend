@@ -9,6 +9,7 @@ import {
   putCreateResetCode,
   putVerifyCode,
   putNewPassword,
+  getOrderById,
 } from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
@@ -131,4 +132,5 @@ router.put(
   ],
   putNewPassword
 );
+router.get('/getOrder/:orderId', isAuth, getOrderById);
 export default router;

@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import TokenModel from '../models/tokenModel.js';
 import { generateResetCode } from '../middleware/generateResetCode.js';
+import OrderSchema from '../models/orderModel.js';
 
 export const signup = async (req, res, next) => {
   const error = validationResult(req);
@@ -293,6 +294,43 @@ export const putNewPassword = async (req, res, next) => {
     user.password = newHashedPassword;
     await user.save();
     res.status(200).json({ message: 'Hasło zostało zmeinione.' });
+  } catch (err) {
+    if (!err) {
+      err.statusCode(500);
+    }
+    next(err);
+  }
+};
+export const getOrderById = async (req, res, next) => {
+  const orderId = req.params.orderId;
+  const userId = req.userId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(401).json();
+      const error = new Error('Użytkownik nie istnieje');
+      error.statusCode = 401;
+      throw error;
+    }
+    const isOrder = user.orders.find(
+      (order) => order._id.toString() === orderId.toString()
+    );
+    if (!isOrder) {
+      res.status(401).json({
+        message: 'Zamówienie nie jest przypisane do tego użytkownika',
+      });
+      const error = new Error('Brak autoryzacji');
+      error.statusCode = 401;
+      throw error;
+    }
+    const order = await OrderSchema.findById(orderId);
+    if (!order) {
+      const error = new Error('Brak zamówienia');
+      error.statusCode = 401;
+      throw error;
+    }
+    res.status(200).json(order);
   } catch (err) {
     if (!err) {
       err.statusCode(500);

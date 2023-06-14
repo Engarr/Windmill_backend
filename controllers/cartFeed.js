@@ -3,6 +3,7 @@ import User from '../models/user.js';
 import OrderSchema from '../models/orderModel.js';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
+import mongoose from 'mongoose';
 
 export const addToCart = async (req, res, next) => {
   const userId = req.body.userId;
@@ -172,21 +173,24 @@ export const postOrder = async (req, res, next) => {
     } = req.body;
 
     const mappedProducts = productsArr.map((product) => ({
-      _id: product._id,
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      imageUrl: product.imgUrl,
+      _id: product.product._id,
+      name: product.product.name,
+      category: product.product.category,
+      price: product.product.price,
+      imageUrl: product.product.imageUrl,
       quantity: product.quantity,
     }));
     let userId;
+    let user;
 
     if (token) {
       const decodedToken = jwt.decode(token, process.env.VITE_SECRET_TOKEN);
       userId = await decodedToken.userId;
+      user = await User.findById(userId);
     }
 
     const newOrder = new OrderSchema({
+      _id: new mongoose.Types.ObjectId(),
       user: { email, userId },
       name,
       surname,
@@ -206,7 +210,12 @@ export const postOrder = async (req, res, next) => {
       date: new Date(),
       paid: false,
     });
+
     await newOrder.save();
+    if (user) {
+      user.orders.push(newOrder._id);
+      await user.save();
+    }
 
     res.status(201).json({ orderId: newOrder._id });
   } catch (err) {
