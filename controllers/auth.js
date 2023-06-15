@@ -338,3 +338,23 @@ export const getOrderById = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getOrders = async (req, res, next) => {
+  const userId = req.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.sttaus(401).json();
+      throw new Error('Nie udało się odnaleźć użytkownika');
+    }
+    const ordersId = user.orders;
+    const OrdersDetails = await OrderSchema.find({ _id: { $in: ordersId } });
+
+    res.status(200).json(OrdersDetails);
+  } catch (err) {
+    if (!err) {
+      err.status(500);
+    }
+    next(err);
+  }
+};
