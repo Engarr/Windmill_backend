@@ -11,6 +11,9 @@ import {
   putNewPassword,
   getOrderById,
   getOrders,
+  isOnWishlist,
+  addToWishlit,
+  reomoveFromWishlit,
 } from '../controllers/auth.js';
 import { body } from 'express-validator';
 import User from '../models/user.js';
@@ -135,4 +138,7 @@ router.put(
 );
 router.get('/getOrder/:orderId', isAuth, getOrderById);
 router.get('/getOrders', isAuth, getOrders);
+router.get('/getWishlist/:productId', isAuth, isOnWishlist);
+router.post('/add-to-wishlist', isAuth, addToWishlit);
+router.delete('/remove-from-wishlist', isAuth, reomoveFromWishlit);
 export default router;

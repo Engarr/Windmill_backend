@@ -326,6 +326,7 @@ export const getOrderById = async (req, res, next) => {
     }
     const order = await OrderSchema.findById(orderId);
     if (!order) {
+      e;
       const error = new Error('Brak zamówienia');
       error.statusCode = 401;
       throw error;
@@ -351,6 +352,78 @@ export const getOrders = async (req, res, next) => {
     const OrdersDetails = await OrderSchema.find({ _id: { $in: ordersId } });
 
     res.status(200).json(OrdersDetails);
+  } catch (err) {
+    if (!err) {
+      err.status(500);
+    }
+    next(err);
+  }
+};
+
+export const addToWishlit = async (req, res, next) => {
+  const userId = req.userId;
+  const productId = req.body.productId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(401).json({
+        message: 'By dodać produkt do listy życzeń musisz się zalogować',
+      });
+      throw new Error('Nie udało się odnaleźć użytkownika');
+    }
+    user.wishLists.push(productId);
+    await user.save();
+    res.status(200).json({ message: 'Produkt został dodany do listy życzeń' });
+  } catch (err) {
+    if (!err) {
+      err.status(500);
+    }
+    next(err);
+  }
+};
+export const reomoveFromWishlit = async (req, res, next) => {
+  const userId = req.userId;
+  const productId = req.body.productId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(401).json({
+        message: 'Aby usunąć produkt z listy życzeń musisz się zalogować',
+      });
+      throw new Error('Nie udało się odnaleźć użytkownika');
+    }
+    user.wishLists.pull(productId);
+    await user.save();
+    res.status(200).json({ message: 'Produkt został usunięty z listy życzeń' });
+  } catch (err) {
+    if (!err) {
+      err.status(500);
+    }
+    next(err);
+  }
+};
+export const isOnWishlist = async (req, res, next) => {
+  const userId = req.userId;
+  const productId = req.params.productId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.sttaus(401).json({
+        message: 'Uzytkownik nie istnieje',
+      });
+      throw new Error('Nie udało się odnaleźć użytkownika');
+    }
+
+    const isProduct = user.wishLists.some(
+      (product) => product.toString() === productId.toString()
+    );
+
+    res.status(200).json({
+      isOnWishlist: isProduct,
+    });
   } catch (err) {
     if (!err) {
       err.status(500);
