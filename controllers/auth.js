@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/user.js';
+import Product from '../models/product.js';
+
 import { validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
@@ -411,9 +413,6 @@ export const isOnWishlist = async (req, res, next) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      res.sttaus(401).json({
-        message: 'Uzytkownik nie istnieje',
-      });
       throw new Error('Nie udało się odnaleźć użytkownika');
     }
 
@@ -424,6 +423,27 @@ export const isOnWishlist = async (req, res, next) => {
     res.status(200).json({
       isOnWishlist: isProduct,
     });
+  } catch (err) {
+    if (!err) {
+      err.status(500);
+    }
+    next(err);
+  }
+};
+export const getWishlist = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new Error('Nie udało się odnaleźć użytkownika');
+    }
+    const wishlistArr = user.wishLists.toString().split(',');
+    if (wishlistArr.length === 1 && wishlistArr[0] === '') {
+      return res.status(200).json({ productDetail: [] });
+    }
+    const productDetail = await Product.find({ _id: { $in: wishlistArr } });
+    res.status(200).json({ productDetail: productDetail });
   } catch (err) {
     if (!err) {
       err.status(500);

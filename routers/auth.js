@@ -11,6 +11,7 @@ import {
   putNewPassword,
   getOrderById,
   getOrders,
+  getWishlist,
   isOnWishlist,
   addToWishlit,
   reomoveFromWishlit,
@@ -138,6 +139,7 @@ router.put(
 );
 router.get('/getOrder/:orderId', isAuth, getOrderById);
 router.get('/getOrders', isAuth, getOrders);
+router.get('/getWishlist', isAuth, getWishlist);
 router.get('/getWishlist/:productId', isAuth, isOnWishlist);
 router.post('/add-to-wishlist', isAuth, addToWishlit);
 router.delete('/remove-from-wishlist', isAuth, reomoveFromWishlit);
